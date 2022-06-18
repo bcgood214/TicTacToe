@@ -1,58 +1,69 @@
 from itertools import permutations
-import helper
+import helper, random
 
 class Agent:
-    def __init__(self):
-        init_state = [[None, None, None] for i in range(3)]
-        self.states = {helper.state_strrep(init_state): 0.5}
-        currstate = init_state
+    def __init__(self, epsilon=0.1, alpha = 0.1):
+        self.states = {}
+        for state in helper.states():
+            mat = helper.strtomat(state)
+            if helper.check_game(mat):
+                if helper.has_won(mat, 'x'):
+                    self.states[state] = 1.0
+                else:
+                    self.states[state] = 0.0
+                    # if state == "oxoxoxonn":
+                    #     print(state)
+            else:
+                self.states[state] = 0.5
 
-        while True:
-            newstate = [[currstate[h][0], currstate[h][1], currstate[h][2]] for h in range(3)]
+        self.epsilon = epsilon
+        # Note: The learning rate
+        self.alpha = alpha
+        self.last = None
+    
+    def best_known(self, state):
+        topval = -0.5
+        known_best = None
+        next_states = helper.get_next_states(state, 'x')
+        for ns in next_states:
+            if self.states[ns] > topval:
+                known_best = ns
+                topval = self.states[ns]
+        
+        return known_best
 
-            # variable to identify change of state, with 1 = 'x' being added, 2 = 'o' being added, and 0 = no change
-            modifier = 0
-            # check for empty spaces
-            for i in range(3):
-                for j in range (3):
-                    if currstate[i][j] is None:
-                        newstate[i][j] = 'x'
-                        modifier = 1
-                        if helper.check_game(newstate):
-                            if helper.has_won(newstate, 'x'):
-                                self.states[helper.state_strrep(newstate)] = 1.0
-                            else:
-                                self.states[helper.state_strrep(newstate)] = 0.0
-                        else:
-                            self.states[helper.state_strrep(newstate)] = 0.5
+
+    def move(self, board, explore=True):
+        state = board
+        if isinstance(board, list):
+            state = helper.state_strrep(state)
+
+        
+        if self.states[state] == 0.0 or self.states[state] == 1.0:
+            if self.last is not None:
+                self.states[self.last] = self.states[self.last] + self.alpha*(self.states[state] - self.states[self.last])
+            return state
+        
+        next_state = self.best_known(state)
+
+        if random.random() < self.epsilon and explore:
+            next_state = random.choice(helper.get_next_states(state, 'x'))
+            self.last = None
+        else:
+            # if next_state == "oxoxooxxn":
+            #     print(self.last)
+            #     if self.last is not None:
+            #         print(self.states[self.last])
+            if self.last is not None:
+                old_val = self.states[self.last]
+                new_val = self.states[next_state]
+                self.states[self.last] = old_val + self.alpha*(new_val - old_val)
             
-            if modifier == 0:
-                for i in range(3):
-                    for j in range (3):
-                        if currstate[i][j] == 'x':
-                            newstate[i][j] = 'o'
-                            modifier = 2
-                            if helper.check_game(newstate):
-                                if helper.has_won(newstate, 'x'):
-                                    self.states[helper.state_strrep(newstate)] = 1.0
-                                else:
-                                    self.states[helper.state_strrep(newstate)] = 0.0
-                            else:
-                                self.states[helper.state_strrep(newstate)] = 0.5
-            
-
-            if modifier == 0:
-                break
-
-            currstate = newstate
+            self.last = next_state
+        
+        return next_state
 
 
 
 if __name__ == "__main__":
     a = Agent()
-    i = 0
-    for key in a.states:
-        print(key)
-        i += 1
-        if i >= 20:
-            break
