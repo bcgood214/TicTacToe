@@ -44,19 +44,19 @@ class Opponent:
 
     
     def make_move(self, board):
-        # row_res = self.check_rows(board)
-        # if row_res is not None:
-        #     board[row_res[0]][row_res[1]] = self.piece
-        #     return
+        row_res = self.check_rows(board)
+        if row_res is not None:
+            board[row_res[0]][row_res[1]] = self.piece
+            return
         
-        # col_res = self.check_cols(board)
-        # if col_res is not None:
-        #     board[col_res[0]][col_res[1]] = self.piece
-        # else:
-        #     pos = self.select_def(board)
-        #     if pos is None:
-        #         return None
-        #     board[pos[0]][pos[1]]
+        col_res = self.check_cols(board)
+        if col_res is not None:
+            board[col_res[0]][col_res[1]] = self.piece
+        else:
+            pos = self.select_def(board)
+            if pos is None:
+                return None
+            board[pos[0]][pos[1]]
 
         pos = self.select_def(board)
         if pos is None:
