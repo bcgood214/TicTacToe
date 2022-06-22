@@ -1,6 +1,8 @@
 import agent, helper
 from opponent import Opponent
 
+# Return a tuple with a boolean value representing a win (True) or a loss (False)
+# and the terminal state
 def play_game(agent, explore=True, show=False):
     initial_state = "n"*9
     board = helper.strtomat(initial_state)
