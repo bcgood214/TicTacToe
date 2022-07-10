@@ -36,6 +36,20 @@ class Agent:
         
         return known_best
     
+    def best_known_approx(self, state):
+        topval = -0.5
+        known_best = None
+        best_approx = None
+        next_states = helper.get_next_states(state, 'x')
+        for ns in next_states:
+            ns_approx = self.insert_approx(ns)
+            if self.states[ns_approx] > topval:
+                known_best = ns
+                topval = self.states[ns_approx]
+                best_approx = ns_approx
+        
+        return known_best, best_approx
+    
     # Returns True if the state is already in the generalization table, False otherwise
     def check_approx(self, state):
         if state not in self.approx.generals:
@@ -49,15 +63,16 @@ class Agent:
         board = helper.strtomat(state)
 
         if len(self.approx.generals) < 1000:
-            self.check_approx(state)
+            preex = self.check_approx(state)
             approx_state = state
-            if helper.check_game(board):
-                if helper.has_won(board, 'x'):
-                    self.states[approx_state] = 1.0
+            if not preex:
+                if helper.check_game(board):
+                    if helper.has_won(board, 'x'):
+                        self.states[approx_state] = 1.0
+                    else:
+                        self.states[approx_state] = 0.0
                 else:
-                    self.states[approx_state] = 0.0
-            else:
-                self.states[approx_state] = 0.5
+                    self.states[approx_state] = 0.5
         else:
             approx_state = self.approx.find_match(state, sum(board))
         
@@ -77,8 +92,7 @@ class Agent:
                 self.states[self.last] = self.states[self.last] + self.alpha*(self.states[approx_state] - self.states[self.last])
             return state
         
-        next_state = self.best_known(state)
-        ns_approx = self.insert_approx(next_state)
+        next_state, ns_approx = self.best_known_approx(state)
 
         if random.random() < self.epsilon and explore:
             next_state = random.choice(helper.get_next_states(state, 'x'))

@@ -8,13 +8,17 @@ class Approx:
     
     def find_match(self, state, values):
         best, value = random.choice(list(self.generals.items()))
+        while value[-1] != values[-1] or value[-2] != values[-2]:
+            best, value = random.choice(list(self.generals.items()))
         print("best: {}; value: {}".format(best, value))
+        
         value = compare(value, values)
         for k in self.generals:
-            diff = compare(self.generals[k], values)
-            if diff < value:
-                value = diff
-                best = k
+            if self.generals[k][-1] == values[-1] and self.generals[k][-2] == values[-2]:
+                diff = compare(self.generals[k], values)
+                if diff < value:
+                    value = diff
+                    best = k
         
         return best
 

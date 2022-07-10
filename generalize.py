@@ -56,6 +56,19 @@ def c3_count(board, piece):
 
     return c3.count(piece)
 
+def won(board, piece):
+    if helper.has_won(board, piece):
+        return 1
+    return 0
+
+def lost(board, piece):
+    opp_piece = 'o'
+    if piece == 'x':
+        opp_piece = 'o'
+    if helper.has_won(board, opp_piece):
+        return 1
+    return 0
+
 def sum(board, piece):
     sum = []
     sum.append(r1_count(board, piece))
@@ -66,6 +79,8 @@ def sum(board, piece):
     sum.append(c1_count(board, piece))
     sum.append(c2_count(board, piece))
     sum.append(c3_count(board, piece))
+    sum.append(won(board, piece))
+    sum.append(lost(board, piece))
 
     return sum
 
