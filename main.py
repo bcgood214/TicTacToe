@@ -22,7 +22,7 @@ def play_game(agent, explore=True, show=False):
 
 if __name__ == "__main__":
     a = agent.Agent(epsilon=0.001, alpha=0.1)
-    for i in range(100):
+    for i in range(50000):
         play_game(a)
         # if i % 1000 == 0:
         #     print("For iteration #{}".format(i))
@@ -34,4 +34,5 @@ if __name__ == "__main__":
     #         print(state)
     
     print(play_game(a, explore=False))
+    print(len(a.approx.generals))
     
