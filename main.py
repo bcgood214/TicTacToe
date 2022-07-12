@@ -22,7 +22,7 @@ def play_game(agent, explore=True, show=False):
 
 if __name__ == "__main__":
     a = agent.Agent(epsilon=0.001, alpha=0.1)
-    for i in range(1000):
+    for i in range(100):
         play_game(a)
         # if i % 1000 == 0:
         #     print("For iteration #{}".format(i))
