@@ -1,4 +1,6 @@
 from itertools import permutations
+
+from itsdangerous import NoneAlgorithm
 import helper, random
 from approximator import Approx
 from generalize import sum
@@ -41,11 +43,23 @@ class Agent:
         known_best = None
         best_approx = None
         next_states = helper.get_next_states(state, 'x')
+        # if next_states is None:
+        #     print("next_states is None")
         for ns in next_states:
-            ns_approx = self.insert_approx(ns)
+            ns_board = helper.strtomat(ns)
+            ns_values = sum(ns_board, 'x')
+            # print("ns_values: {}".format(ns_values))
+            ns_approx = ns
+            if self.approx.get_length(ns) < 15:
+                self.approx.insert(ns, ns_values)
+            else:
+                ns_board = helper.strtomat(ns)
+                ns_approx = self.approx.find_match(ns, ns_values)
             if self.states[ns_approx] > topval:
                 known_best = ns
                 topval = self.states[ns_approx]
+                best_approx = ns_approx
+            if best_approx is None:
                 best_approx = ns_approx
         
         return known_best, best_approx
@@ -62,8 +76,8 @@ class Agent:
         approx_state = None
         board = helper.strtomat(state)
 
-        if len(self.approx.generals) < 1000:
-            preex = self.check_approx(state)
+        if self.approx.get_length(state) < 60:
+            preex = self.approx.check_approx(state)
             approx_state = state
             if not preex:
                 if helper.check_game(board):
@@ -74,7 +88,7 @@ class Agent:
                 else:
                     self.states[approx_state] = 0.5
         else:
-            approx_state = self.approx.find_match(state, sum(board))
+            approx_state = self.approx.find_match(state, sum(board, 'x'))
         
         return approx_state
 
@@ -84,7 +98,12 @@ class Agent:
         if isinstance(board, list):
             state = helper.state_strrep(state)
         
-        approx_state = self.insert_approx(state)
+        state_sum = sum(board, 'x')
+        if self.approx.get_length(state) < 60:
+            self.approx.insert(state, state_sum)
+            approx_state = state
+        else:
+            approx_state = self.approx.find_match(state, state_sum)
 
         
         if self.states[approx_state] == 0.0 or self.states[approx_state] == 1.0:
@@ -93,6 +112,9 @@ class Agent:
             return state
         
         next_state, ns_approx = self.best_known_approx(state)
+
+        if helper.has_won(board, 'x') or helper.has_won(board, 'o') or helper.check_game(board):
+            return state
 
         if random.random() < self.epsilon and explore:
             next_state = random.choice(helper.get_next_states(state, 'x'))
@@ -104,6 +126,10 @@ class Agent:
             #         print(self.states[self.last])
             if self.last is not None:
                 old_val = self.states[self.last]
+                if ns_approx is None:
+                    print("ns_approx is None")
+                    print(state)
+                    print(self.last)
                 new_val = self.states[ns_approx]
                 self.states[self.last] = old_val + self.alpha*(new_val - old_val)
             

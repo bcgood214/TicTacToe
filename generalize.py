@@ -61,6 +61,11 @@ def won(board, piece):
         return 1
     return 0
 
+def over(board):
+    if helper.check_game(board):
+        return 1
+    return 0
+
 def lost(board, piece):
     opp_piece = 'o'
     if piece == 'x':
@@ -79,6 +84,7 @@ def sum(board, piece):
     sum.append(c1_count(board, piece))
     sum.append(c2_count(board, piece))
     sum.append(c3_count(board, piece))
+    sum.append(over(board))
     sum.append(won(board, piece))
     sum.append(lost(board, piece))
 
