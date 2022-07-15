@@ -6,9 +6,10 @@ from approximator import Approx
 from generalize import sum
 
 class Agent:
-    def __init__(self, epsilon=0.1, alpha = 0.1, approx=False):
+    def __init__(self, epsilon=0.1, alpha = 0.1, approx=False, weights=[1 for i in range(11)]):
         self.states = {}
         self.approx = Approx()
+        self.w = weights
         if not approx:
             for state in helper.states():
                 mat = helper.strtomat(state)
@@ -47,10 +48,10 @@ class Agent:
         #     print("next_states is None")
         for ns in next_states:
             ns_board = helper.strtomat(ns)
-            ns_values = sum(ns_board, 'x')
+            ns_values = sum(ns_board, 'x', self.w)
             # print("ns_values: {}".format(ns_values))
             ns_approx = ns
-            if self.approx.get_length(ns) < 15:
+            if self.approx.get_length(ns):
                 self.approx.insert(ns, ns_values)
             else:
                 ns_board = helper.strtomat(ns)
@@ -67,7 +68,7 @@ class Agent:
     # Returns True if the state is already in the generalization table, False otherwise
     def check_approx(self, state):
         if state not in self.approx.generals:
-            val = sum(helper.strtomat(state), 'x')
+            val = sum(helper.strtomat(state), 'x', self.w)
             self.approx.generals[state] = val
             return False
         return True
@@ -76,7 +77,7 @@ class Agent:
         approx_state = None
         board = helper.strtomat(state)
 
-        if self.approx.get_length(state) < 60:
+        if self.approx.get_length(state):
             preex = self.approx.check_approx(state)
             approx_state = state
             if not preex:
@@ -88,7 +89,7 @@ class Agent:
                 else:
                     self.states[approx_state] = 0.5
         else:
-            approx_state = self.approx.find_match(state, sum(board, 'x'))
+            approx_state = self.approx.find_match(state, sum(board, 'x', self.w))
         
         return approx_state
 
@@ -98,8 +99,8 @@ class Agent:
         if isinstance(board, list):
             state = helper.state_strrep(state)
         
-        state_sum = sum(board, 'x')
-        if self.approx.get_length(state) < 60:
+        state_sum = sum(board, 'x', self.w)
+        if self.approx.get_length(state):
             self.approx.insert(state, state_sum)
             approx_state = state
         else:

@@ -48,12 +48,20 @@ class Approx:
         if type(state) != list:
             board = helper.strtomat(state)
         if helper.has_won(board, 'x'):
-            return len(self.won)
+            if len(self.won) < 10:
+                return True
+            return False
         elif helper.has_won(board, 'o'):
-            return len(self.lost)
+            if len(self.lost) < 10:
+                return True
+            return False
         elif helper.check_game(board):
-            return len(self.draw)
-        return len(self.generals)
+            if len(self.draw) < 10:
+                return True
+            return False
+        if len(self.generals) < 20:
+            return True
+        return False
     
     def check_approx(self, state):
         if state in self.generals:

@@ -74,19 +74,19 @@ def lost(board, piece):
         return 1
     return 0
 
-def sum(board, piece):
+def sum(board, piece, weights=[1 for i in range(11)]):
     sum = []
-    sum.append(r1_count(board, piece))
-    sum.append(r2_count(board, piece))
-    sum.append(r3_count(board, piece))
-    sum.append(d1_count(board, piece))
-    sum.append(d2_count(board, piece))
-    sum.append(c1_count(board, piece))
-    sum.append(c2_count(board, piece))
-    sum.append(c3_count(board, piece))
-    sum.append(over(board))
-    sum.append(won(board, piece))
-    sum.append(lost(board, piece))
+    sum.append(r1_count(board, piece)*weights[0])
+    sum.append(r2_count(board, piece)*weights[1])
+    sum.append(r3_count(board, piece)*weights[2])
+    sum.append(d1_count(board, piece)*weights[3])
+    sum.append(d2_count(board, piece)*weights[4])
+    sum.append(c1_count(board, piece)*weights[5])
+    sum.append(c2_count(board, piece)*weights[6])
+    sum.append(c3_count(board, piece)*weights[7])
+    sum.append(over(board)*weights[8])
+    sum.append(won(board, piece)*weights[9])
+    sum.append(lost(board, piece)*weights[10])
 
     return sum
 
